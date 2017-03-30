@@ -16,6 +16,7 @@ use Log::Log4perl qw(:easy);
 use File::MMagic;
 use IO::File;
 use File::stat;
+use OAuth::Cmdline::CustomFile;
 use OAuth::Cmdline::GoogleDrive;
 
 our $VERSION = "0.12";
@@ -25,11 +26,20 @@ sub new {
 ###########################################
     my($class, %options) = @_;
 
+    my $oauth;
+
+    if ( exists $options{custom_file} ) {
+        $oauth = OAuth::Cmdline::CustomFile->new( custom_file => $options{custom_file} );
+    }
+    else {
+        $oauth = OAuth::Cmdline::GoogleDrive->new( );
+    }
+
     my $self = {
         init_done       => undef,
         api_file_url    => "https://www.googleapis.com/drive/v2/files",
         api_upload_url  => "https://www.googleapis.com/upload/drive/v2/files",
-        oauth           => OAuth::Cmdline::GoogleDrive->new( ),
+        oauth           => $oauth,
         error           => undef,
         %options,
     };
